@@ -20,13 +20,16 @@ public class AccountsController : ControllerBase
     private readonly DataContext _context;
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
 
-    public AccountsController(ITokenService tokenService, DataContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+    public AccountsController(ITokenService tokenService, DataContext context, 
+        UserManager<ApplicationUser> userManager, IConfiguration configuration, IEmailService emailService)
     {
         _tokenService = tokenService;
         _context = context;
         _userManager = userManager;
         _configuration = configuration;
+        _emailService = emailService;
     }
 
     [HttpPost("login")]
@@ -83,7 +86,6 @@ public class AccountsController : ControllerBase
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
-            MiddleName = request.MiddleName,
             Email = request.Email,
             UserName = request.Email
         };
@@ -176,4 +178,68 @@ public class AccountsController : ControllerBase
 
         return Ok();
     }
+
+    [HttpPost]
+    [Route("forgot-password-email")]
+    public async Task<IActionResult> RequestOtp(RequestOtpEmail model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest("Invalid request");
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return BadRequest("User not found");
+
+        var otp = GenerateOtp();
+        user.OtpCode = otp;
+        user.OtpExpiryTime = DateTime.UtcNow.AddMinutes(5);
+
+        await _userManager.UpdateAsync(user);
+
+        await _emailService.SendEmailAsync(user.Email, "Код для сброса пароля", $"Ваш код для сброса пароля: {otp}");
+
+        return Ok("OTP has been sent to your email.");
+    }
+
+    [HttpPost]
+    [Route("reset-password-with-otp")]
+    public async Task<IActionResult> ResetPasswordWithOtp(ResetPasswordWithOtp model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest("Invalid request");
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return BadRequest("User not found");
+
+        if (user.OtpCode != model.Otp || user.OtpExpiryTime <= DateTime.UtcNow)
+            return BadRequest("Invalid or expired OTP");
+
+        var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        var result = await _userManager.ResetPasswordAsync(user, resetToken, model.NewPassword);
+
+        if (result.Succeeded)
+        {
+            user.OtpCode = null;
+            user.OtpExpiryTime = null;
+            await _userManager.UpdateAsync(user);
+
+            return Ok("Password has been reset successfully.");
+        }
+
+        return BadRequest("Error while resetting the password.");
+    }
+
+
+
+    private string GenerateOtp()
+    {
+        var random = new Random();
+        var otp = random.Next(100000, 999999).ToString();
+        return otp;
+    }
+
+
+
 }

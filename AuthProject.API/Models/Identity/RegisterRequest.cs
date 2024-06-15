@@ -30,7 +30,4 @@ public class RegisterRequest
     [Required]
     [Display(Name = "Фамилия")]
     public string LastName { get; set; } = null!;
-
-    [Display(Name = "Отчество")]
-    public string? MiddleName { get; set; }
 }

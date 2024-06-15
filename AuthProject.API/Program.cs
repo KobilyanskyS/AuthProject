@@ -18,6 +18,7 @@ builder.Services.AddDbContext<DataContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 builder.Services.AddAuthentication(opt => {
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -42,7 +43,9 @@ builder.Services.AddAuthorization(options => options.DefaultPolicy =
             (JwtBearerDefaults.AuthenticationScheme)
         .RequireAuthenticatedUser()
         .Build());
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<long>>()
+    .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<DataContext>()
     .AddUserManager<UserManager<ApplicationUser>>()
     .AddSignInManager<SignInManager<ApplicationUser>>();
