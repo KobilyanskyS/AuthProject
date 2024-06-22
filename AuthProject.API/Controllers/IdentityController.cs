@@ -13,8 +13,8 @@ namespace AuthProject.API.Controllers;
 
 
 [ApiController]
-[Route("accounts")]
-public class AccountsController : ControllerBase
+[Route("api/[controller]")]
+public class IdentityController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly DataContext _context;
@@ -22,7 +22,7 @@ public class AccountsController : ControllerBase
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
 
-    public AccountsController(ITokenService tokenService, DataContext context, 
+    public IdentityController(ITokenService tokenService, DataContext context, 
         UserManager<ApplicationUser> userManager, IConfiguration configuration, IEmailService emailService)
     {
         _tokenService = tokenService;

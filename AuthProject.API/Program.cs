@@ -9,6 +9,7 @@ using AuthProject.API.Data;
 using AuthProject.API.Data.Entities;
 using AuthProject.API.Services.Identity;
 using AuthProject.API.Extensions;
+using AuthProject.API.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<DataContext>(
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<IUsersService, UsersService>();
 
 builder.Services.AddAuthentication(opt => {
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
