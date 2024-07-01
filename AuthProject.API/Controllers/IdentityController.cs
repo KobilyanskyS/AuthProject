@@ -21,15 +21,17 @@ public class IdentityController : ControllerBase
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
+    private readonly ISMSService _smsService;
 
     public IdentityController(ITokenService tokenService, DataContext context, 
-        UserManager<ApplicationUser> userManager, IConfiguration configuration, IEmailService emailService)
+        UserManager<ApplicationUser> userManager, IConfiguration configuration, IEmailService emailService, ISMSService smsService)
     {
         _tokenService = tokenService;
         _context = context;
         _userManager = userManager;
         _configuration = configuration;
         _emailService = emailService;
+        _smsService = smsService;
     }
 
     [HttpPost("login")]
@@ -54,17 +56,19 @@ public class IdentityController : ControllerBase
             return BadRequest("Bad credentials");
         }
 
-        var user = _context.Users.FirstOrDefault(u => u.Email == request.Email);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
         if (user is null)
             return Unauthorized();
 
         var roleIds = await _context.UserRoles.Where(r => r.UserId == user.Id).Select(x => x.RoleId).ToListAsync();
-        var roles = _context.Roles.Where(x => roleIds.Contains(x.Id)).ToList();
+        var roles = await _context.Roles.Where(x => roleIds.Contains(x.Id)).ToListAsync();
 
         var accessToken = _tokenService.CreateToken(user, roles);
         user.RefreshToken = _configuration.GenerateRefreshToken();
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetSection("Jwt:RefreshTokenValidityInDays").Get<int>());
+
+        user.LastLoginDate = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 
@@ -77,6 +81,7 @@ public class IdentityController : ControllerBase
         });
     }
 
+
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
@@ -87,7 +92,8 @@ public class IdentityController : ControllerBase
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
-            UserName = request.Email
+            UserName = request.Email,
+            RegistrationDate = DateTime.UtcNow
         };
         var result = await _userManager.CreateAsync(user, request.Password);
 
@@ -110,6 +116,7 @@ public class IdentityController : ControllerBase
             Password = request.Password
         });
     }
+
 
     [HttpPost]
     [Route("refresh-token")]
@@ -199,6 +206,30 @@ public class IdentityController : ControllerBase
         await _emailService.SendEmailAsync(user.Email, "Код для сброса пароля", $"Ваш код для сброса пароля: {otp}");
 
         return Ok("OTP has been sent to your email.");
+    }
+
+
+    [HttpPost]
+    [Route("forgot-password-sms")]
+    public async Task<IActionResult> RequestOtpSMS(RequestOtpSMS model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest("Invalid request");
+
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.PhoneNumber == model.PhoneNumber);
+        if (user == null)
+            return BadRequest("User not found");
+
+        var otp = GenerateOtp();
+        user.OtpCode = otp;
+        user.OtpExpiryTime = DateTime.UtcNow.AddMinutes(5);
+
+        await _userManager.UpdateAsync(user);
+
+        await _smsService.SendSMSAsync(model.PhoneNumber.ToString(), $"Ваш код для сброса пароля: {otp}");
+
+        return Ok($"OTP has been sent to your phone number.\n" +
+            $"------ {model.PhoneNumber}: Ваш код для сброса пароля: {otp}");
     }
 
     [HttpPost]

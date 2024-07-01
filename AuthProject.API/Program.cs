@@ -19,6 +19,7 @@ builder.Services.AddDbContext<DataContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ISMSService, SMSService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<IUsersService, UsersService>();
 

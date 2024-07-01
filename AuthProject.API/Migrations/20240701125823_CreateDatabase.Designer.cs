@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AuthProject.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240614104002_CreateDatabase")]
+    [Migration("20240701125823_CreateDatabase")]
     partial class CreateDatabase
     {
         /// <inheritdoc />
@@ -51,9 +51,18 @@ namespace AuthProject.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool?>("IsSubscribedToNewsletter")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastLoginDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastPurchaseDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -84,14 +93,29 @@ namespace AuthProject.API.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("PreferredCategory")
+                        .HasColumnType("text");
+
                     b.Property<string>("RefreshToken")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("RefreshTokenExpiryTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("RegistrationDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
+
+                    b.Property<decimal?>("TotalAmountSpent")
+                        .HasColumnType("numeric");
+
+                    b.Property<int?>("TotalProductsViewed")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TotalPurchases")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
