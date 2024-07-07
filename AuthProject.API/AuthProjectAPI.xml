@@ -1,0 +1,320 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AuthProject.API</name>
+    </assembly>
+    <members>
+        <member name="M:AuthProject.API.Controllers.IdentityController.Authenticate(AuthProject.API.Models.Identity.AuthRequest)">
+             <summary>
+             Вход
+             </summary>
+             <remarks>
+             Пример запроса:
+            
+                 POST
+                 {
+                     "email": "kobilyansky.s@gmail.com",
+                     "password": "myStrongPass!1"
+                 }
+            
+             </remarks>
+             <returns></returns>
+             <response code="200">Успешное выполнение</response>
+             <response code="400">Ошибка API</response>
+        </member>
+        <member name="M:AuthProject.API.Controllers.IdentityController.Register(AuthProject.API.Models.Identity.RegisterRequest)">
+             <summary>
+             Регистрация
+             </summary>
+             <remarks>
+             Пример запроса:
+            
+                 POST
+                 {
+                     "email": "mail@example.com",
+                     "birthDate": "2024-07-07",
+                     "password": "myStrongPass!1",
+                     "passwordConfirm": "myStrongPass!1",
+                     "firstName": "John",
+                     "lastName": "Doe"
+                 }
+            
+             </remarks>
+             <returns></returns>
+             <response code="200">Успешное выполнение (Происходит регистрация, выдаётся пара токенов и длительность их действия)</response>
+             <response code="400">Ошибка API</response>
+        </member>
+        <member name="M:AuthProject.API.Controllers.IdentityController.RefreshToken(AuthProject.API.Models.Identity.TokenModel)">
+             <summary>
+             Обновление токенов
+             </summary>
+             <remarks>
+             Пример запроса:
+            
+                 POST
+                 {
+                     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd.......MSJ9.dG_D7J_PeXHlc8TOGi7nJ0Dl34DKOpOmobiv2fk_qnc",
+                     "refreshToken": "NGnEGelNK8S3FrvvCZrtKN1dBVW9g4NtTehUrkzIrnjP7Vtda6ANlP4MOZNxM4jsjdcTWQU2sXf0v/IRyrFnLw==",
+                 }
+            
+             </remarks>
+             <returns></returns>
+             <response code="200">Успешное выполнение (выдаётся новая пара токенов)</response>
+             <response code="400">Ошибка API</response>
+        </member>
+        <member name="M:AuthProject.API.Controllers.IdentityController.RequestOtp(AuthProject.API.Models.Identity.RequestOtpEmail)">
+             <summary>
+             Отправка кода OTP на почту, если пользователь забыл пароль
+             </summary>
+             <remarks>
+             Пример запроса:
+            
+                 POST
+                 {
+                     "email": "kobilyansky.s@gmail.com",
+                 }
+            
+             </remarks>
+             <returns></returns>
+             <response code="200">Успешное выполнение (отправка OTP кода на почту, указанную в запросе)</response>
+             <response code="400">Ошибка API</response>
+        </member>
+        <member name="M:AuthProject.API.Controllers.IdentityController.RequestOtpSMS(AuthProject.API.Models.Identity.RequestOtpSMS)">
+             <summary>
+             Отправка кода OTP на телефон, если пользователь забыл пароль
+             </summary>
+             <remarks>
+             Пример запроса:
+            
+                 POST
+                 {
+                     "phoneNumber": "+79893243249",
+                 }
+            
+             </remarks>
+             <returns></returns>
+             <response code="200">Успешное выполнение (отправка SMS с OTP кодом на номер указанный в запросе)</response>
+             <response code="400">Ошибка API</response>
+        </member>
+        <member name="M:AuthProject.API.Controllers.IdentityController.ResetPasswordWithOtp(AuthProject.API.Models.Identity.ResetPasswordWithOtp)">
+             <summary>
+             Обновление пароля с помощью полученного OTP кода
+             </summary>
+             <remarks>
+             Пример запроса:
+            
+                 POST
+                 {
+                     "email": "kobilyansky.s@gmail.com",
+                     "otp": "23223",
+                     "newPassword": "MyNewPassword!2"
+                 }
+            
+             </remarks>
+             <returns></returns>
+             <response code="200">Успешное выполнение (Обновление пароля)</response>
+             <response code="400">Ошибка API</response>
+        </member>
+        <member name="M:AuthProject.API.Controllers.UserController.GetUsersInfo">
+            <summary>
+            Получение информации о пользователе (Берётся токен из заголовков запроса и по нему идёт поиск данных о пользователе)
+            </summary>
+            <returns></returns>
+            <response code="200">Успешное выполнение (Вывод данных о пользователе)</response>
+            <response code="400">Ошибка API</response>
+        </member>
+        <member name="M:AuthProject.API.Controllers.UserController.UpdateUserInfo(AuthProject.API.Models.Users.UserModel)">
+             <summary>
+             Обновление информации о пользователе (Берётся токен из заголовков запроса и по нему идёт поиск данных о пользователе)
+             </summary>
+             <remarks>
+             Пример запроса:
+            
+                 PUT
+                 {
+                     "firstName": "John",
+                     "lastName": "Doe",
+                     "userName": "john.doe@example.com",
+                     "phoneNumber": "+72342343443",
+                     "email": "john.doe@example.com"
+                 }
+            
+             </remarks>
+             <returns></returns>
+             <response code="200">Успешное выполнение (Данные о пользователе обновлены)</response>
+             <response code="400">Ошибка API</response>
+        </member>
+        <member name="T:AuthProject.API.Migrations.CreateDatabase">
+            <inheritdoc />
+        </member>
+        <member name="M:AuthProject.API.Migrations.CreateDatabase.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:AuthProject.API.Migrations.CreateDatabase.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:AuthProject.API.Migrations.CreateDatabase.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:AuthProject.API.Models.Identity.AuthRequest">
+            <summary>
+            Запрос на авторизацию
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.AuthRequest.Email">
+            <summary>
+            Email
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.AuthRequest.Password">
+            <summary>
+            Пароль
+            </summary>
+        </member>
+        <member name="T:AuthProject.API.Models.Identity.AuthResponse">
+            <summary>
+            Ответ после авторизации
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.AuthResponse.Username">
+            <summary>
+            Имя пользователя
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.AuthResponse.Email">
+            <summary>
+            Email
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.AuthResponse.Token">
+            <summary>
+            Access Token
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.AuthResponse.RefreshToken">
+            <summary>
+            Refresh Token
+            </summary>
+        </member>
+        <member name="T:AuthProject.API.Models.Identity.RegisterRequest">
+            <summary>
+            Запрос на регистрацию
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.RegisterRequest.Email">
+            <summary>
+            Email
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.RegisterRequest.BirthDate">
+            <summary>
+            Дата рождения
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.RegisterRequest.Password">
+            <summary>
+            Пароль
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.RegisterRequest.PasswordConfirm">
+            <summary>
+            Пароль ещё раз для подтверждения
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.RegisterRequest.FirstName">
+            <summary>
+            Имя
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.RegisterRequest.LastName">
+            <summary>
+            Фамилия
+            </summary>
+        </member>
+        <member name="T:AuthProject.API.Models.Identity.RequestOtpEmail">
+            <summary>
+            Запрос на получение Otp на Email
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.RequestOtpEmail.Email">
+            <summary>
+            Email
+            </summary>
+        </member>
+        <member name="T:AuthProject.API.Models.Identity.RequestOtpSMS">
+            <summary>
+            Запрос на получение Otp на телефон
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.RequestOtpSMS.PhoneNumber">
+            <summary>
+            Номер телефона
+            </summary>
+        </member>
+        <member name="T:AuthProject.API.Models.Identity.ResetPasswordWithOtp">
+            <summary>
+            Запрос на сброс пароля с помощью Otp
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.ResetPasswordWithOtp.Email">
+            <summary>
+            Email
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.ResetPasswordWithOtp.Otp">
+            <summary>
+            Полученный Otp-код
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.ResetPasswordWithOtp.NewPassword">
+            <summary>
+            Новый пароль
+            </summary>
+        </member>
+        <member name="T:AuthProject.API.Models.Identity.TokenModel">
+            <summary>
+            Модель для ввода токенов
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.TokenModel.AccessToken">
+            <summary>
+            Access Token
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Identity.TokenModel.RefreshToken">
+            <summary>
+            Refresh Token
+            </summary>
+        </member>
+        <member name="T:AuthProject.API.Models.Users.UserModel">
+            <summary>
+            Модель пользователя
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Users.UserModel.FirstName">
+            <summary>
+            Имя
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Users.UserModel.LastName">
+            <summary>
+            Фамилия
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Users.UserModel.UserName">
+            <summary>
+            Имя пользователя (=Email)
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Users.UserModel.PhoneNumber">
+            <summary>
+            Номер телефона
+            </summary>
+        </member>
+        <member name="P:AuthProject.API.Models.Users.UserModel.Email">
+            <summary>
+            Email
+            </summary>
+        </member>
+    </members>
+</doc>

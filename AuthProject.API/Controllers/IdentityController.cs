@@ -34,6 +34,25 @@ public class IdentityController : ControllerBase
         _smsService = smsService;
     }
 
+
+
+    /// <summary>
+    /// Вход
+    /// </summary>
+    /// <remarks>
+    /// Пример запроса:
+    ///
+    ///     POST
+    ///     {
+    ///         "email": "kobilyansky.s@gmail.com",
+    ///         "password": "myStrongPass!1"
+    ///     }
+    ///
+    /// </remarks>
+    /// <returns></returns>
+    /// <response code="200">Успешное выполнение</response>
+    /// <response code="400">Ошибка API</response>
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] AuthRequest request)
     {
@@ -81,7 +100,27 @@ public class IdentityController : ControllerBase
         });
     }
 
-
+    /// <summary>
+    /// Регистрация
+    /// </summary>
+    /// <remarks>
+    /// Пример запроса:
+    ///
+    ///     POST
+    ///     {
+    ///         "email": "mail@example.com",
+    ///         "birthDate": "2024-07-07",
+    ///         "password": "myStrongPass!1",
+    ///         "passwordConfirm": "myStrongPass!1",
+    ///         "firstName": "John",
+    ///         "lastName": "Doe"
+    ///     }
+    ///
+    /// </remarks>
+    /// <returns></returns>
+    /// <response code="200">Успешное выполнение (Происходит регистрация, выдаётся пара токенов и длительность их действия)</response>
+    /// <response code="400">Ошибка API</response>
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
@@ -118,9 +157,26 @@ public class IdentityController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Обновление токенов
+    /// </summary>
+    /// <remarks>
+    /// Пример запроса:
+    ///
+    ///     POST
+    ///     {
+    ///         "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd.......MSJ9.dG_D7J_PeXHlc8TOGi7nJ0Dl34DKOpOmobiv2fk_qnc",
+    ///         "refreshToken": "NGnEGelNK8S3FrvvCZrtKN1dBVW9g4NtTehUrkzIrnjP7Vtda6ANlP4MOZNxM4jsjdcTWQU2sXf0v/IRyrFnLw==",
+    ///     }
+    ///
+    /// </remarks>
+    /// <returns></returns>
+    /// <response code="200">Успешное выполнение (выдаётся новая пара токенов)</response>
+    /// <response code="400">Ошибка API</response>
     [HttpPost]
-    [Route("refresh-token")]
-    public async Task<IActionResult> RefreshToken(TokenModel? tokenModel)
+    [AllowAnonymous]
+    [Route("refreshToken")]
+    public async Task<IActionResult> RefreshToken(TokenModel tokenModel)
     {
         if (tokenModel is null)
         {
@@ -157,37 +213,55 @@ public class IdentityController : ControllerBase
         });
     }
 
-    [Authorize]
+    //[Authorize]
+    //[HttpPost]
+    //[Route("revoke/{username}")]
+    //public async Task<IActionResult> Revoke(string username)
+    //{
+    //    var user = await _userManager.FindByNameAsync(username);
+    //    if (user == null) return BadRequest("Invalid user name");
+
+    //    user.RefreshToken = null;
+    //    await _userManager.UpdateAsync(user);
+
+    //    return Ok();
+    //}
+
+    //[Authorize]
+    //[HttpPost]
+    //[Route("revoke-all")]
+    //public async Task<IActionResult> RevokeAll()
+    //{
+    //    var users = _userManager.Users.ToList();
+    //    foreach (var user in users)
+    //    {
+    //        user.RefreshToken = null;
+    //        await _userManager.UpdateAsync(user);
+    //    }
+
+    //    return Ok();
+    //}
+
+
+
+    /// <summary>
+    /// Отправка кода OTP на почту, если пользователь забыл пароль
+    /// </summary>
+    /// <remarks>
+    /// Пример запроса:
+    ///
+    ///     POST
+    ///     {
+    ///         "email": "kobilyansky.s@gmail.com",
+    ///     }
+    ///
+    /// </remarks>
+    /// <returns></returns>
+    /// <response code="200">Успешное выполнение (отправка OTP кода на почту, указанную в запросе)</response>
+    /// <response code="400">Ошибка API</response>
     [HttpPost]
-    [Route("revoke/{username}")]
-    public async Task<IActionResult> Revoke(string username)
-    {
-        var user = await _userManager.FindByNameAsync(username);
-        if (user == null) return BadRequest("Invalid user name");
-
-        user.RefreshToken = null;
-        await _userManager.UpdateAsync(user);
-
-        return Ok();
-    }
-
-    [Authorize]
-    [HttpPost]
-    [Route("revoke-all")]
-    public async Task<IActionResult> RevokeAll()
-    {
-        var users = _userManager.Users.ToList();
-        foreach (var user in users)
-        {
-            user.RefreshToken = null;
-            await _userManager.UpdateAsync(user);
-        }
-
-        return Ok();
-    }
-
-    [HttpPost]
-    [Route("forgot-password-email")]
+    [AllowAnonymous]
+    [Route("forgotPasswordEmail")]
     public async Task<IActionResult> RequestOtp(RequestOtpEmail model)
     {
         if (!ModelState.IsValid)
@@ -209,8 +283,23 @@ public class IdentityController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Отправка кода OTP на телефон, если пользователь забыл пароль
+    /// </summary>
+    /// <remarks>
+    /// Пример запроса:
+    ///
+    ///     POST
+    ///     {
+    ///         "phoneNumber": "+79893243249",
+    ///     }
+    ///
+    /// </remarks>
+    /// <returns></returns>
+    /// <response code="200">Успешное выполнение (отправка SMS с OTP кодом на номер указанный в запросе)</response>
+    /// <response code="400">Ошибка API</response>
     [HttpPost]
-    [Route("forgot-password-sms")]
+    [Route("forgotPasswordSms")]
     public async Task<IActionResult> RequestOtpSMS(RequestOtpSMS model)
     {
         if (!ModelState.IsValid)
@@ -232,8 +321,26 @@ public class IdentityController : ControllerBase
             $"------ {model.PhoneNumber}: Ваш код для сброса пароля: {otp}");
     }
 
+
+    /// <summary>
+    /// Обновление пароля с помощью полученного OTP кода
+    /// </summary>
+    /// <remarks>
+    /// Пример запроса:
+    ///
+    ///     POST
+    ///     {
+    ///         "email": "kobilyansky.s@gmail.com",
+    ///         "otp": "23223",
+    ///         "newPassword": "MyNewPassword!2"
+    ///     }
+    ///
+    /// </remarks>
+    /// <returns></returns>
+    /// <response code="200">Успешное выполнение (Обновление пароля)</response>
+    /// <response code="400">Ошибка API</response>
     [HttpPost]
-    [Route("reset-password-with-otp")]
+    [Route("resetPasswordWithOtp")]
     public async Task<IActionResult> ResetPasswordWithOtp(ResetPasswordWithOtp model)
     {
         if (!ModelState.IsValid)

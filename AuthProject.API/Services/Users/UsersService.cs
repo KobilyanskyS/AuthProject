@@ -23,9 +23,7 @@ public class UsersService : IUsersService
 
     public async Task<ApplicationUser> GetUserById(long userId)
     {
-        var records = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync();
-
-        return records;
+        return await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync();
     }
 
     public async Task UpdateUserAsync(long userId, UserModel userModel)
